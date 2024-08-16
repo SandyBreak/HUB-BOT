@@ -1,0 +1,6 @@
+/venv
+/SECONDARY_CONTENT
+
+*__pycache__*
+
+*.DS_Store*
