@@ -1,0 +1,6 @@
+# -*- coding: UTF-8 -*-
+
+LIST_USERS_TO_NEWSLETTER = []
+
+
+SUPER_GROUP_ID = -1002208198754
