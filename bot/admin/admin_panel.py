@@ -39,7 +39,7 @@ async def choose_action(callback: CallbackQuery, state: FSMContext, bot: Bot):
         await callback.answer()
     if action == 'menu':
         root_keyboard = await bank_of_keys.possibilities_keyboard()
-        await callback.message.answer(f"{emojis.ARROW_DOWN} Выберите одно из нижеперечисленных действий {emojis.ARROW_DOWN}", reply_markup=root_keyboard.as_markup())
+        await callback.message.answer(f"Выберите одно из нижеперечисленных действий", reply_markup=root_keyboard.as_markup())
         await callback.answer()
     elif action == 'global_newsletter':
         await global_newsletter(callback, bot)
