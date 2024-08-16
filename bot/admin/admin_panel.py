@@ -28,7 +28,7 @@ emojis = Emojis()
 async def get_pass(message: Message, state: FSMContext, bot: Bot):
     root_keyboard = await bank_of_keys.possibilities_keyboard()     
     if (message.chat.id == SUPER_GROUP_ID) and not(message.message_thread_id):
-        await message.answer(f"{emojis.ARROW_DOWN} Выберите одно из нижеперечисленных действий {emojis.ARROW_DOWN}", reply_markup=root_keyboard.as_markup())
+        await message.answer(f"Выберите одно из нижеперечисленных действий", reply_markup=root_keyboard.as_markup())
 
 
 @router.callback_query(F.data)
