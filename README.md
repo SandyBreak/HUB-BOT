@@ -20,3 +20,4 @@ Commands:
 
 3. sudo docker rm <container name> | remove container
 
+4. sudo docker-compose down | stop&remove containers
