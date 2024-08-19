@@ -8,9 +8,13 @@ Ubuntu 22.04:
 
 1) Apt install docker.io docker-compose -y
 
-2) Copy app to server
+2) git clone https://github.com/SandyBreak/HUB_BOT.git | Copy app to server
 
-3) In project dir: sudo docker-compose up -d --build
+3) Change mongodb pass&login and telegram_token in docker-compose.env 
+
+4) In project dir: sudo docker-compose up -d --build
+
+5) How to connect using mongodb compass: mongodb://{mongodb_login}:{mongodb_password}@{sever_ip_adress}:27021/
 
 Commands:
 
