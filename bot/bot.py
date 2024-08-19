@@ -23,16 +23,16 @@ emojis = Emojis()
 async def set_commands_and_description(bot: Bot) -> None:
     commands = [
     BotCommand(
-        command="/start",
-        description="Перезапустить бота"
+        command='/start',
+        description='Перезапустить бота'
 		),
     BotCommand(
-        command="/help",
-        description="Помощь"
+        command='/help',
+        description='Помощь'
 		)
     ]
-    long_description_one = f"""Напишите ваш вопрос и мы ответим Вам в ближайшее время."""
-    short_description = f""
+    long_description_one = f'''Напишите ваш вопрос и мы ответим Вам в ближайшее время.'''
+    short_description = f''
     
     await bot.set_my_description(description=long_description_one)
     await bot.set_my_short_description(short_description=short_description)
@@ -41,7 +41,7 @@ async def set_commands_and_description(bot: Bot) -> None:
 async def main():
     load_dotenv()#Потом убрать надо
     
-    logging.basicConfig(level=logging.WARNING, format="%(asctime)s - %(levelname)s - %(message)s", datefmt="%d-%m %H:%M")
+    logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%m %H:%M')
     
     bot = Bot(token=await helper.get_tg_token())
     dp = Dispatcher()
@@ -54,10 +54,10 @@ async def main():
     
 
     await create_db()
-    logging.warning("BOT STARTED")
     await dp.start_polling(bot)
+    logging.warning('BOT STARTED')
     
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     asyncio.run(main())
     

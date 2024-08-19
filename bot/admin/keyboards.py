@@ -15,31 +15,30 @@ class AdminKeyboards:
     
     
     async def newsletter_keyboard(self) -> InlineKeyboardBuilder:
-        """
+        '''
         Клавиатура для рассылки
-        """
+        '''
         builder = InlineKeyboardBuilder(
             markup=[
                 [
-                    InlineKeyboardButton(text="Запустить глобальную рассылку", callback_data=f'global_newsletter')
+                    InlineKeyboardButton(text='Запустить глобальную рассылку', callback_data=f'global_newsletter')
                 ],
                 [
-                    InlineKeyboardButton(text="Запустить точечную рассылку", callback_data=f'targeted_newsletter')
+                    InlineKeyboardButton(text='Запустить точечную рассылку', callback_data=f'targeted_newsletter')
                 ],
                 [
-                    InlineKeyboardButton(text="Удалить это сообщение", callback_data=f'cancel_newsletter')
+                    InlineKeyboardButton(text='Удалить это сообщение', callback_data=f'cancel_newsletter')
                 ]
             ]
         )
         return builder
     
     async def keyboard_for_adding_users_in_targeted_newsletter(self, added_users: dict) -> InlineKeyboardBuilder:
-        """
+        '''
         Клавиатура с выбором пользователей для точечной рассылки
-        """
+        '''
         builder = InlineKeyboardBuilder()
         users = await mongodb.get_users_id_and_tg_adreses()
-        print(added_users)
         if added_users:
             for user in users:
                 user_id = user[0]
@@ -65,19 +64,19 @@ class AdminKeyboards:
     
     
     async def possibilities_keyboard(self) -> InlineKeyboardBuilder:
-        """
+        '''
         Основная клавиатура админа
-        """
+        '''
         builder = InlineKeyboardBuilder(
             markup=[
                 [
-                    InlineKeyboardButton(text="РУКОВОДСТВО АДМИН ПАНЕЛИ", callback_data=f'manual')
+                    InlineKeyboardButton(text='РУКОВОДСТВО АДМИН ПАНЕЛИ', callback_data=f'manual')
                 ],
                 [
-                    InlineKeyboardButton(text="Посмотреть список активных/не активных пользователей", callback_data=f'view_active_users')
+                    InlineKeyboardButton(text='Посмотреть список активных/не активных пользователей', callback_data=f'view_active_users')
                 ],
                 [
-                    InlineKeyboardButton(text="Заново отправить сообщение с действиями", callback_data='menu')
+                    InlineKeyboardButton(text='Заново отправить сообщение с действиями', callback_data='menu')
                 ]
             ]
         )

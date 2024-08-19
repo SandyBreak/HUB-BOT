@@ -9,9 +9,9 @@ class AdminOperations:
             
             
     async def parse_callback_data(self, data: str) -> Tuple[str, Optional[str], Optional[str]]:
-        """
+        '''
         Получение данных из строки callback.data
-        """
+        '''
         if ',' in data:
             parts = data.split(',')
             action = parts[0]
