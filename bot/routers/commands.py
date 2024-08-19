@@ -4,7 +4,6 @@ from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram import Router, Bot
 import logging
-from bson import ObjectId
 
 from database.mongodb.interaction import Interaction
 
@@ -20,8 +19,6 @@ async def cmd_start(message: Message, bot: Bot) -> None:
     SUPER_GROUP_ID = await mongodb_interface.get_super_group_id()
     if not(SUPER_GROUP_ID):
         logging.critical('Bot doesn''t activated')
-        if message.chat.id != message.from_user.id:
-            await message.answer(f'Активируйте меня командой /init!')
         return
     
     hello_message = f'''Здравствуйте!
@@ -60,12 +57,3 @@ async def cmd_help(message: Message, bot: Bot) -> None:
 4. Если по какой то причине вы не получаете ответ в течении долгого времени (2 и более дней), можете обратиться к администратору бота по адресу @velikiy_ss
     '''
     await message.answer(help_message)
-    
-    
-@router.message(Command('init'))
-async def cmd_init(message: Message, bot: Bot) -> None:
-    if message.chat.id != message.from_user.id:
-        filter_ = {"_id": ObjectId("66bf2af6825485184a414d78")}
-        update_ = {"$set": {"super_group_id": message.chat.id}}
-        await mongodb_interface.update_data(filter_, update_)
-    await message.answer('Бот успешно активирован!')

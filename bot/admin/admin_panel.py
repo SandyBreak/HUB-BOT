@@ -29,8 +29,6 @@ async def get_pass(message: Message):
     SUPER_GROUP_ID = await mongodb_interface.get_super_group_id()
     if not(SUPER_GROUP_ID):
         logging.critical('Bot doesn''t activated')
-        if message.chat.id != message.from_user.id:
-            await message.answer(f'Активируйте меня командой /init!')
         return
     root_keyboard = await bank_of_keys.possibilities_keyboard()     
     if (message.chat.id == SUPER_GROUP_ID) and not(message.message_thread_id):
@@ -42,8 +40,6 @@ async def choose_action(callback: CallbackQuery, state: FSMContext, bot: Bot):
     SUPER_GROUP_ID = await mongodb_interface.get_super_group_id()
     if not(SUPER_GROUP_ID):
         logging.critical('Bot doesn''t activated')
-        if callback.chat.id != callback.from_user.id:
-            await callback.answer(f'Активируйте меня командой /init!')
         return
     action, user_id, user_tg_addr = await helper.parse_callback_data(callback.data)
     if action == 'manual':
@@ -76,7 +72,7 @@ async def choose_action(callback: CallbackQuery, state: FSMContext, bot: Bot):
 
 async def get_manual_admin_panel(callback: CallbackQuery):
     manual_message = '''
-<b>Как делать рассылки:</b> Отправляем в чат Admin Panel любое сообщение и выбилоролрраем что с ним сделать.
+<b>Как делать рассылки:</b> Отправляем в чат Admin Panel любое сообщение и выбираем что с ним сделать.
 1. <b>Запустить глобальную рассылку:</b> Отправить сообщение всем пользователям
 2. <b>Запустить точечную рассылку:</b> Отправить сообщение выбранным пользователям
 3. <b>Удалить сообщение:</b> Удалить сообщение и отменить рассылку
@@ -117,7 +113,7 @@ async def global_newsletter(callback: CallbackQuery, bot: Bot, super_group_id: i
                     else:
                         logging.warning(f'Skipping user_id {user_id} unknown error {e}')
                         not_received_users.append([user_id, user_tg_addr, f'Другая ошибка{e}'])
-            await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+            await bot.edit_message_reply_markup(chat_id=callback.message.chat.id, message_id=callback.message.message_id, reply_markup=None)
             if received_users:
                 message_report = 'Получившие пользователи:\n'
 
@@ -167,7 +163,7 @@ async def targeted_newsletter(callback: CallbackQuery, bot: Bot, super_group_id:
                         else:
                             logging.warning(f'Skipping user_id {user_id} unknown error{e}')
                             not_received_users.append([user_id, user_tg_addr, f'Другая ошибка{e}'])
-                await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+                await bot.edit_message_reply_markup(chat_id=callback.message.chat.id, message_id=callback.message.message_id, reply_markup=None)
                 message_report = 'Получившие пользователи:\n'
                 if received_users:
                     for user in received_users:

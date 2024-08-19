@@ -30,8 +30,6 @@ async def catch_message(message: Message, bot: Bot) -> None:
     SUPER_GROUP_ID = await mongodb_interface.get_super_group_id()
     if not(SUPER_GROUP_ID):
         logging.critical('Bot doesn''t activated')
-        if message.chat.id != message.from_user.id:
-            await message.answer(f'Активируйте меня командой /init!')
         return
     with suppress(AttributeError):
         left_member_id = message.left_chat_participant.get('id')
@@ -144,7 +142,5 @@ async def catch_message(message: Message, bot: Bot) -> None:
             '''
             keyboard = await  bank_of_keys.newsletter_keyboard()
             edit_message = await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, protect_content=None)
+            await bot.delete_message(chat_id=SUPER_GROUP_ID, message_id=message.message_id,)
             await bot.edit_message_reply_markup(chat_id=SUPER_GROUP_ID, message_id=edit_message.message_id, reply_markup=keyboard.as_markup())
-    
-
-
