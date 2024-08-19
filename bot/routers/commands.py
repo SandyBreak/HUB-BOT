@@ -4,21 +4,30 @@ from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram import Router, Bot
 import logging
+from bson import ObjectId
 
 from database.mongodb.interaction import Interaction
-from admin.config import SUPER_GROUP_ID
+
 
 mongodb_interface = Interaction()
 router = Router()
+from admin.assistant import AdminOperations
 
+helper = AdminOperations()
 
 @router.message(Command('start'))
 async def cmd_start(message: Message, bot: Bot) -> None:
-    hello_message = f"""Здравствуйте!
+    SUPER_GROUP_ID = await mongodb_interface.get_super_group_id()
+    if not(SUPER_GROUP_ID):
+        logging.critical('Bot doesn''t activated')
+        if message.chat.id != message.from_user.id:
+            await message.answer(f'Активируйте меня командой /init!')
+        return
+    
+    hello_message = f'''Здравствуйте!
 
 Напишите ваш вопрос и мы ответим Вам в ближайшее время.
-    """
-
+    '''
     id_topic_chat = await mongodb_interface.init_user(message.from_user.id, message.from_user.username, message.from_user.full_name)
     
     if not(id_topic_chat):
@@ -40,8 +49,8 @@ async def cmd_start(message: Message, bot: Bot) -> None:
         
         
 @router.message(Command('help'))
-async def cmd_start(message: Message, bot: Bot) -> None:
-    help_message = f"""Возможности бота:
+async def cmd_help(message: Message, bot: Bot) -> None:
+    help_message = f'''Возможности бота:
 1. Вы можете отправлять в бот текст, фото, видео, документы, а так же голосовые сообщения
 
 2. Вы можете пересылать боту чужие сообщения, но получателю вашего сообщения не будет видно имени человека, чьи сообщения были пересланы
@@ -49,5 +58,14 @@ async def cmd_start(message: Message, bot: Bot) -> None:
 3. Вы не можете редактировать сообщения. Если у вас есть исправления вашего прошлого сообщения - исправьте его и отправьте в бот еще раз.
 
 4. Если по какой то причине вы не получаете ответ в течении долгого времени (2 и более дней), можете обратиться к администратору бота по адресу @velikiy_ss
-    """
+    '''
     await message.answer(help_message)
+    
+    
+@router.message(Command('init'))
+async def cmd_init(message: Message, bot: Bot) -> None:
+    if message.chat.id != message.from_user.id:
+        filter_ = {"_id": ObjectId("66bf2af6825485184a414d78")}
+        update_ = {"$set": {"super_group_id": message.chat.id}}
+        await mongodb_interface.update_data(filter_, update_)
+    await message.answer('Бот успешно активирован!')

@@ -8,7 +8,7 @@ from aiogram import Router, Bot, F
 import logging
 
 
-from admin.config import LIST_USERS_TO_NEWSLETTER, SUPER_GROUP_ID
+from admin.config import LIST_USERS_TO_NEWSLETTER
 from admin.assistant import AdminOperations
 from admin.keyboards import AdminKeyboards
 
@@ -25,33 +25,45 @@ emojis = Emojis()
 
     
 @router.message(Command('control'))
-async def get_pass(message: Message, state: FSMContext, bot: Bot):
+async def get_pass(message: Message):
+    SUPER_GROUP_ID = await mongodb_interface.get_super_group_id()
+    if not(SUPER_GROUP_ID):
+        logging.critical('Bot doesn''t activated')
+        if message.chat.id != message.from_user.id:
+            await message.answer(f'Активируйте меня командой /init!')
+        return
     root_keyboard = await bank_of_keys.possibilities_keyboard()     
     if (message.chat.id == SUPER_GROUP_ID) and not(message.message_thread_id):
-        await message.answer(f"Выберите одно из нижеперечисленных действий", reply_markup=root_keyboard.as_markup())
+        await message.answer(f'Выберите одно из нижеперечисленных действий', reply_markup=root_keyboard.as_markup())
 
 
 @router.callback_query(F.data)
 async def choose_action(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    SUPER_GROUP_ID = await mongodb_interface.get_super_group_id()
+    if not(SUPER_GROUP_ID):
+        logging.critical('Bot doesn''t activated')
+        if callback.chat.id != callback.from_user.id:
+            await callback.answer(f'Активируйте меня командой /init!')
+        return
     action, user_id, user_tg_addr = await helper.parse_callback_data(callback.data)
     if action == 'manual':
         await get_manual_admin_panel(callback)
         await callback.answer()
     if action == 'menu':
         root_keyboard = await bank_of_keys.possibilities_keyboard()
-        await callback.message.answer(f"Выберите одно из нижеперечисленных действий", reply_markup=root_keyboard.as_markup())
+        await callback.message.answer(f'Выберите одно из нижеперечисленных действий', reply_markup=root_keyboard.as_markup())
         await callback.answer()
     elif action == 'global_newsletter':
-        await global_newsletter(callback, bot)
+        await global_newsletter(callback, bot, SUPER_GROUP_ID)
         await callback.answer()
     elif action == 'targeted_newsletter':
         list_users = await bank_of_keys.keyboard_for_adding_users_in_targeted_newsletter(None)
         await bot.edit_message_reply_markup(chat_id=SUPER_GROUP_ID, message_id=callback.message.message_id, reply_markup=list_users.as_markup())
         await callback.answer()    
     elif action == 'cancel_newsletter':
-        await cancel_newsletter(callback, bot)
+        await cancel_newsletter(callback, bot, SUPER_GROUP_ID)
     elif action == 'accept_newsletter':
-        await targeted_newsletter(callback, bot)
+        await targeted_newsletter(callback, bot, SUPER_GROUP_ID)
         await callback.answer() 
     elif action == 'view_active_users':
         await view_active_users(callback, bot)
@@ -63,7 +75,7 @@ async def choose_action(callback: CallbackQuery, state: FSMContext, bot: Bot):
 
 
 async def get_manual_admin_panel(callback: CallbackQuery):
-    manual_message = """
+    manual_message = '''
 <b>Как делать рассылки:</b> Отправляем в чат Admin Panel любое сообщение и выбилоролрраем что с ним сделать.
 1. <b>Запустить глобальную рассылку:</b> Отправить сообщение всем пользователям
 2. <b>Запустить точечную рассылку:</b> Отправить сообщение выбранным пользователям
@@ -71,20 +83,20 @@ async def get_manual_admin_panel(callback: CallbackQuery):
 
 <b>Посмотреть список активных/не активных пользователей:</b>
 Получить список активных пользователей
-    """
+    '''
     await callback.message.answer(manual_message, ParseMode.HTML)
     await callback.answer()
 
-async def cancel_newsletter(callback: CallbackQuery, bot: Bot) -> None:
-    if (callback.message.chat.id == SUPER_GROUP_ID) and not(callback.message.message_thread_id):
+async def cancel_newsletter(callback: CallbackQuery, bot: Bot, super_group_id: int) -> None:
+    if (callback.message.chat.id == super_group_id) and not(callback.message.message_thread_id):
         await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
         
         
-async def global_newsletter(callback: CallbackQuery, bot: Bot) -> None:
-    """
+async def global_newsletter(callback: CallbackQuery, bot: Bot, super_group_id: int) -> None:
+    '''
     Глобальная рассылка обновлений
-    """
-    if (callback.message.chat.id == SUPER_GROUP_ID) and not(callback.message.message_thread_id):
+    '''
+    if (callback.message.chat.id == super_group_id) and not(callback.message.message_thread_id):
         user_data = await mongodb_interface.get_users_id_and_tg_adreses()
         try:
             received_users = []
@@ -96,14 +108,14 @@ async def global_newsletter(callback: CallbackQuery, bot: Bot) -> None:
                     await bot.copy_message(chat_id=user_id, from_chat_id=callback.message.chat.id, message_id=callback.message.message_id, protect_content=None)
                     received_users.append([user_id, user_tg_addr])
                 except Exception as e:
-                    if "chat not found" in str(e):
-                        logging.warning(f"Skipping user_id {user_id} due to 'chat not found' error")
+                    if 'chat not found' in str(e):
+                        logging.warning(f'Skipping user_id {user_id} due to ''chat not found'' error')
                         not_received_users.append([user_id, user_tg_addr, 'Чат не найден'])
-                    elif "bot was blocked" in str(e):
-                        logging.warning(f"Skipping user_id {user_id} due to 'chat not found' error")
+                    elif 'bot was blocked' in str(e):
+                        logging.warning(f'Skipping user_id {user_id} due to ''chat not found'' error')
                         not_received_users.append([user_id, user_tg_addr, 'Заблокировал бота'])
                     else:
-                        logging.warning(f"Skipping user_id {user_id} unknown error {e}")
+                        logging.warning(f'Skipping user_id {user_id} unknown error {e}')
                         not_received_users.append([user_id, user_tg_addr, f'Другая ошибка{e}'])
             await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
             if received_users:
@@ -126,14 +138,14 @@ async def global_newsletter(callback: CallbackQuery, bot: Bot) -> None:
             await callback.message.answer(f'{emojis.SUCCESS} Рассылка завершена успешно!')
             await callback.message.answer(f'{message_report}')
         except Exception as e:
-            logging.error(f"Error during global_newsletter: {e}")
+            logging.error(f'Error during global_newsletter: {e}')
 
 
-async def targeted_newsletter(callback: CallbackQuery, bot: Bot) -> None:
-    """
+async def targeted_newsletter(callback: CallbackQuery, bot: Bot, super_group_id: int) -> None:
+    '''
     Точечная рассылка обновлений
-    """
-    if (callback.message.chat.id == SUPER_GROUP_ID) and not(callback.message.message_thread_id):
+    '''
+    if (callback.message.chat.id == super_group_id) and not(callback.message.message_thread_id):
         user_data = LIST_USERS_TO_NEWSLETTER
         if user_data:
             try:
@@ -146,14 +158,14 @@ async def targeted_newsletter(callback: CallbackQuery, bot: Bot) -> None:
                         await bot.copy_message(chat_id=user_id, from_chat_id=callback.message.chat.id, message_id=callback.message.message_id, protect_content=None)
                         received_users.append([user_id, user_tg_addr])
                     except Exception as e:
-                        if "chat not found" in str(e):
-                            logging.warning(f"Skipping user_id {user_id} due to 'chat not found' error")
+                        if 'chat not found' in str(e):
+                            logging.warning(f'Skipping user_id {user_id} due to ''chat not found'' error')
                             not_received_users.append([user_id, user_tg_addr, 'Чат не найден'])
-                        elif "bot was blocked" in str(e):
-                            logging.warning(f"Skipping user_id {user_id} due to 'chat not found' error")
+                        elif 'bot was blocked' in str(e):
+                            logging.warning(f'Skipping user_id {user_id} due to ''chat not found'' error')
                             not_received_users.append([user_id, user_tg_addr, 'Заблокировал бота'])
                         else:
-                            logging.warning(f"Skipping user_id {user_id} unknown error{e}")
+                            logging.warning(f'Skipping user_id {user_id} unknown error{e}')
                             not_received_users.append([user_id, user_tg_addr, f'Другая ошибка{e}'])
                 await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
                 message_report = 'Получившие пользователи:\n'
@@ -174,7 +186,7 @@ async def targeted_newsletter(callback: CallbackQuery, bot: Bot) -> None:
                 await callback.message.answer(f'{emojis.SUCCESS} Рассылка завершена успешно!')
                 await callback.message.answer(f'{message_report}')
             except Exception as e:
-                logging.error(f"Error during targeted_newsletter: {e}")
+                logging.error(f'Error during targeted_newsletter: {e}')
         else:
             await callback.message.answer(f'{emojis.ALLERT} Вы не добавили в рассылку ни одного пользователя')
 
@@ -195,11 +207,11 @@ async def view_active_users(callback: CallbackQuery, bot: Bot) -> None:
             if chat:
                 active_users.append([user_id, user_tg_addr])
         except Exception as e:
-                if "chat not found" in str(e):
-                    logging.warning(f"Skipping user_id {user_id} due to 'chat not found' error")
+                if 'chat not found' in str(e):
+                    logging.warning(f'Skipping user_id {user_id} due to ''chat not found'' error')
                     not_active_users.append([user_id, user_tg_addr,])
                 else:
-                    logging.warning(f"Skipping user_id {user_id} unknown error{e}")
+                    logging.warning(f'Skipping user_id {user_id} unknown error{e}')
                     other_users.append([user_id, user_tg_addr, e])
     
     if active_users:
