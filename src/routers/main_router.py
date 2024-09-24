@@ -123,12 +123,14 @@ async def catch_message(message: Message, bot: Bot) -> None:
             Если сообщение написано в одной из тем и это сообщение принадлежит не боту
             '''
             message_thread_id = message.message_thread_id
-            logging.critical(message_thread_id)
-            user_chat_id = await GroupService.get_user_id(message_thread_id)
-            '''
-            Отправляем сообщение пользователю, которому принадлежит тема 
-            '''
-            await bot.copy_message(chat_id=user_chat_id, from_chat_id=message.chat.id, message_id=message.message_id, protect_content=None)
+            if message_thread_id == 2751:
+                pass
+            else:
+                user_chat_id = await GroupService.get_user_id(message_thread_id)
+                '''
+                Отправляем сообщение пользователю, которому принадлежит тема 
+                '''
+                await bot.copy_message(chat_id=user_chat_id, from_chat_id=message.chat.id, message_id=message.message_id, protect_content=None)
         
         elif not message.is_topic_message:
             '''
