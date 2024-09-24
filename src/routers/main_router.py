@@ -95,7 +95,7 @@ async def catch_message(message: Message, bot: Bot) -> None:
                 Если тема была удалена
                 '''
                 if 'message thread not found' in str(e):
-                    logging.error(f'Message thread not found')
+                    logging.error(f'Message thread not found re-creating the topic...')
                     try:
                         '''
                         Создаем новую тему

@@ -36,7 +36,7 @@ async def set_commands_and_description(bot: Bot) -> None:
 async def main():
     load_dotenv()#Потом убрать надо
     
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%m %H:%M')
+    logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%m %H:%M')
     
     bot = Bot(token=TELEGRAM_TOKEN)
     dp = Dispatcher()
