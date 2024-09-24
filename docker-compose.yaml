@@ -7,7 +7,7 @@ services:
       - primary_postgres_db_network
     restart: always
     build:
-      context: bot/
+      context: src/
       dockerfile: bot.dockerfile
     env_file:
       - ./docker-compose.env
