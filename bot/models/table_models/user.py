@@ -3,8 +3,6 @@
 from sqlalchemy import Column, Integer, BigInteger, String, DateTime
 from sqlalchemy.orm import relationship
 
-from .user_chat import UserChat
-
 from .base import Base
 
 
@@ -16,5 +14,4 @@ class User(Base):
     nickname = Column(String(length=320), nullable=False)
     fullname = Column(String(length=320), nullable=False)
     date_reg = Column(DateTime, nullable=False)
-
-    user_chats = relationship("UserChat", back_populates="user")
+    id_topic_chat = Column(BigInteger, nullable=True)
