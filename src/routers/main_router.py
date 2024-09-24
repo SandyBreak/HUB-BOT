@@ -22,7 +22,6 @@ router = Router()
 @router.message(F.text.not_in(['/start', '/control', '/help', '/init']))
 async def catch_message(message: Message, bot: Bot) -> None:
     bot_data = await bot.get_me()
-    logging.critical(bot_data.id)
     SUPER_GROUP_ID = await GroupService.get_group_id()
     if not(SUPER_GROUP_ID):
         logging.critical('Bot doesn''t activated')
