@@ -8,13 +8,13 @@ from sqlalchemy import pool
 
 from alembic import context
 
-sys.path.append(os.path.join(sys.path[0], 'bot'))
+sys.path.append(os.path.join(sys.path[0], 'src'))
 
-from bot.models.table_models.user import User
-from bot.models.table_models.admin_group import AdminGroup
-from bot.models.table_models.base import Base
+from src.models.table_models.user import User
+from src.models.table_models.admin_group import AdminGroup
+from src.models.table_models.base import Base
 
-from bot.config import *
+from src.config import *
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

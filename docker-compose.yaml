@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  bot:
+    container_name: diz_hub_bot
+    networks:
+      - primary_postgres_db_network
+    restart: always
+    build:
+      context: bot/
+      dockerfile: bot.dockerfile
+    env_file:
+      - ./docker-compose.env
+
+networks:
+  primary_postgres_db_network:
+    external: true
