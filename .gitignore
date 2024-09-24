@@ -1,6 +1,5 @@
 /venv
-/SECONDARY_CONTENT
+src/trash
 
 *__pycache__*
-
 *.DS_Store*
