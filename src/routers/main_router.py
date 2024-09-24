@@ -123,6 +123,7 @@ async def catch_message(message: Message, bot: Bot) -> None:
             Если сообщение написано в одной из тем и это сообщение принадлежит не боту
             '''
             message_thread_id = message.message_thread_id
+            logging.critical(message_thread_id)
             user_chat_id = await GroupService.get_user_id(message_thread_id)
             '''
             Отправляем сообщение пользователю, которому принадлежит тема 
