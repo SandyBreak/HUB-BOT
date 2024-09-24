@@ -38,7 +38,7 @@ async def set_commands_and_description(bot: Bot) -> None:
     
 async def run_migrations():
     """Функция для выполнения миграций Alembic."""
-    alembic_cfg = Config("alembic.ini")  # Укажите путь к вашему файлу alembic.ini
+    alembic_cfg = Config("../alembic.ini")  # Укажите путь к вашему файлу alembic.ini
     async with asyncio.Lock():  # Используем блокировку, чтобы избежать конфликтов
         command.upgrade(alembic_cfg, "head")
 
