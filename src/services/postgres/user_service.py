@@ -39,7 +39,7 @@ class UserService:
                 if not user_exists_flag:
                     new_user = User(
                         id_tg=user_id,
-                        nickname=nickname,
+                        nickname=f'@{nickname}',
                         fullname=full_name,
                         date_reg=datetime.now(),
                     )
