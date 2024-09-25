@@ -70,7 +70,7 @@ async def catch_message(message: Message, bot: Bot) -> None:
         try:
             await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, message_thread_id=new_topic.message_thread_id, protect_content=None)
         except Exception as e:
-            logging.critical(f'Error during copy message STEP 1 {e}')
+            logging.critical(f'Error during copy message STEP 1 ID: {message.from_user.id} Error: {e}')
     elif id_topic_chat:
         '''
         Если сообщение написано не в группе и у пользователя есть номер его темы
@@ -92,7 +92,7 @@ async def catch_message(message: Message, bot: Bot) -> None:
                 try:
                     await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, message_thread_id=id_topic_chat, protect_content=None)
                 except Exception as e:
-                        logging.critical(f'Error during copy message STEP 2 {e}')
+                        logging.critical(f'Error during copy message STEP 2 ID: {message.from_user.id} Error: {e}')
             except TelegramBadRequest as e:
                 '''
                 Если тема была удалена
@@ -121,7 +121,7 @@ async def catch_message(message: Message, bot: Bot) -> None:
                     try:
                         await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, message_thread_id=new_topic.message_thread_id, protect_content=None)
                     except Exception as e:
-                        logging.critical(f'Error during copy message STEP 3 {e}')
+                        logging.critical(f'Error during copy message STEP 3 ID: {message.from_user.id} Error: {e}')
                 else:
                     logging.error(f'Unknown error: {e}')
         elif message.is_topic_message and message.from_user.id != bot_data.id:
@@ -139,7 +139,7 @@ async def catch_message(message: Message, bot: Bot) -> None:
                 try:
                     await bot.copy_message(chat_id=user_chat_id, from_chat_id=message.chat.id, message_id=message.message_id, protect_content=None)
                 except Exception as e:
-                        logging.critical(f'Error during copy message STEP 4 {e}')
+                        logging.critical(f'Error during copy message STEP 4 ID: {message.from_user.id} Error: {e}')
         elif not message.is_topic_message:
             '''
             Если сообщение написано в главной теме, Дублируем сообщение с клавитурой управления рассылкой
@@ -148,6 +148,6 @@ async def catch_message(message: Message, bot: Bot) -> None:
             try:
                 edit_message = await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, protect_content=None)
             except Exception as e:
-                logging.critical(f'Error during copy message STEP 5 {e}')
+                logging.critical(f'Error during copy message STEP 5 ID: {message.from_user.id} Error: {e}')
             await bot.delete_message(chat_id=SUPER_GROUP_ID, message_id=message.message_id,)
             await bot.edit_message_reply_markup(chat_id=SUPER_GROUP_ID, message_id=edit_message.message_id, reply_markup=keyboard.as_markup())
