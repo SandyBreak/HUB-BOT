@@ -67,7 +67,10 @@ async def catch_message(message: Message, bot: Bot) -> None:
         '''
         new_user_message = await bot.send_message(chat_id=SUPER_GROUP_ID, text=f'ID пользователя: {message.from_user.id}\nИмя пользователя: {message.from_user.full_name}\nАдрес пользователя: @{message.from_user.username}', reply_to_message_id=new_topic.message_thread_id)
         await bot.pin_chat_message(chat_id=SUPER_GROUP_ID, message_id=new_user_message.message_id)
-        await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, message_thread_id=new_topic.message_thread_id, protect_content=None)
+        try:
+            await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, message_thread_id=new_topic.message_thread_id, protect_content=None)
+        except Exception as e:
+            logging.critical(f'Error during copy message STEP 1 {e}')
     elif id_topic_chat:
         '''
         Если сообщение написано не в группе и у пользователя есть номер его темы
@@ -86,9 +89,10 @@ async def catch_message(message: Message, bot: Bot) -> None:
             #            if 'not enough rights' in str(e):
             #                    logging.error(f'Not enough rights!')
             #                    await bot.send_message(chat_id=SUPER_GROUP_ID, text='Назначьте меня администратором!')
-                
-                await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, message_thread_id=id_topic_chat, protect_content=None)
-            
+                try:
+                    await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, message_thread_id=id_topic_chat, protect_content=None)
+                except Exception as e:
+                        logging.critical(f'Error during copy message STEP 2 {e}')
             except TelegramBadRequest as e:
                 '''
                 Если тема была удалена
@@ -114,7 +118,10 @@ async def catch_message(message: Message, bot: Bot) -> None:
                     '''
                     new_user_message = await bot.send_message(chat_id=SUPER_GROUP_ID, text=f'ID пользователя: {message.from_user.id}\nИмя пользователя: {message.from_user.full_name}\nАдрес пользователя: @{message.from_user.username}', reply_to_message_id=new_topic.message_thread_id)
                     await bot.pin_chat_message(chat_id=SUPER_GROUP_ID, message_id=new_user_message.message_id)
-                    await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, message_thread_id=new_topic.message_thread_id, protect_content=None)
+                    try:
+                        await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, message_thread_id=new_topic.message_thread_id, protect_content=None)
+                    except Exception as e:
+                        logging.critical(f'Error during copy message STEP 3 {e}')
                 else:
                     logging.error(f'Unknown error: {e}')
         elif message.is_topic_message and message.from_user.id != bot_data.id:
@@ -124,18 +131,23 @@ async def catch_message(message: Message, bot: Bot) -> None:
             message_thread_id = message.message_thread_id
             user_chat_id = await GroupService.get_user_id(message_thread_id)
             if not user_chat_id:
-                logging.error(f'Handled admin chat message message_thread_id: {user_chat_id}')
+                logging.info(f'Handled admin chat message message_thread_id: {message_thread_id}')
             else:
                 '''
                 Отправляем сообщение пользователю, которому принадлежит тема 
                 '''
-                await bot.copy_message(chat_id=user_chat_id, from_chat_id=message.chat.id, message_id=message.message_id, protect_content=None)
-        
+                try:
+                    await bot.copy_message(chat_id=user_chat_id, from_chat_id=message.chat.id, message_id=message.message_id, protect_content=None)
+                except Exception as e:
+                        logging.critical(f'Error during copy message STEP 4 {e}')
         elif not message.is_topic_message:
             '''
             Если сообщение написано в главной теме, Дублируем сообщение с клавитурой управления рассылкой
             '''
             keyboard = await AdminKeyboards.newsletter_keyboard()
-            edit_message = await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, protect_content=None)
+            try:
+                edit_message = await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, protect_content=None)
+            except Exception as e:
+                logging.critical(f'Error during copy message STEP 5 {e}')
             await bot.delete_message(chat_id=SUPER_GROUP_ID, message_id=message.message_id,)
             await bot.edit_message_reply_markup(chat_id=SUPER_GROUP_ID, message_id=edit_message.message_id, reply_markup=keyboard.as_markup())
