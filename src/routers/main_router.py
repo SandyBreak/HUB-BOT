@@ -127,6 +127,7 @@ async def catch_message(message: Message, bot: Bot) -> None:
             else:
                 logging.error(f'message_thread_id: {message_thread_id}')
                 user_chat_id = await GroupService.get_user_id(message_thread_id)
+                logging.error(f'user_chat_id: {user_chat_id}')
                 '''
                 Отправляем сообщение пользователю, которому принадлежит тема 
                 '''
