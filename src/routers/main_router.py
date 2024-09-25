@@ -65,7 +65,7 @@ async def catch_message(message: Message, bot: Bot) -> None:
         '''
         Отправляем сообщение с информацией о пользователе и закрепляем его
         '''
-        new_user_message = await bot.send_message(chat_id=SUPER_GROUP_ID, text=f'ID пользователя: {message.from_user.id}\nИмя пользователя: {message.from_user.full_name}\nАдрес пользователя: {message.from_user.username}', reply_to_message_id=new_topic.message_thread_id)
+        new_user_message = await bot.send_message(chat_id=SUPER_GROUP_ID, text=f'ID пользователя: {message.from_user.id}\nИмя пользователя: {message.from_user.full_name}\nАдрес пользователя: @{message.from_user.username}', reply_to_message_id=new_topic.message_thread_id)
         await bot.pin_chat_message(chat_id=SUPER_GROUP_ID, message_id=new_user_message.message_id)
         await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, message_thread_id=new_topic.message_thread_id, protect_content=None)
     elif id_topic_chat:
@@ -112,7 +112,7 @@ async def catch_message(message: Message, bot: Bot) -> None:
                     '''
                     Отправляем сообщение с информацией о пользователе и закрепляем его
                     '''
-                    new_user_message = await bot.send_message(chat_id=SUPER_GROUP_ID, text=f'ID пользователя: {message.from_user.id}\nИмя пользователя: {message.from_user.full_name}\nАдрес пользователя: {message.from_user.username}', reply_to_message_id=new_topic.message_thread_id)
+                    new_user_message = await bot.send_message(chat_id=SUPER_GROUP_ID, text=f'ID пользователя: {message.from_user.id}\nИмя пользователя: {message.from_user.full_name}\nАдрес пользователя: @{message.from_user.username}', reply_to_message_id=new_topic.message_thread_id)
                     await bot.pin_chat_message(chat_id=SUPER_GROUP_ID, message_id=new_user_message.message_id)
                     await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, message_thread_id=new_topic.message_thread_id, protect_content=None)
                 else:
@@ -125,6 +125,7 @@ async def catch_message(message: Message, bot: Bot) -> None:
             if message_thread_id == 2751:
                 pass
             else:
+                logging.error(f'message_thread_id: {message_thread_id}')
                 user_chat_id = await GroupService.get_user_id(message_thread_id)
                 '''
                 Отправляем сообщение пользователю, которому принадлежит тема 
