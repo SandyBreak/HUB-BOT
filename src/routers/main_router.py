@@ -122,12 +122,10 @@ async def catch_message(message: Message, bot: Bot) -> None:
             Если сообщение написано в одной из тем и это сообщение принадлежит не боту
             '''
             message_thread_id = message.message_thread_id
-            if message_thread_id == 2751:
-                pass
+            user_chat_id = await GroupService.get_user_id(message_thread_id)
+            if not user_chat_id:
+                logging.error(f'Handled admin chat message message_thread_id: {user_chat_id}')
             else:
-                logging.error(f'message_thread_id: {message_thread_id}')
-                user_chat_id = await GroupService.get_user_id(message_thread_id)
-                logging.error(f'user_chat_id: {user_chat_id}')
                 '''
                 Отправляем сообщение пользователю, которому принадлежит тема 
                 '''
