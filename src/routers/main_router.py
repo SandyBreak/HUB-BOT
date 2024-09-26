@@ -89,15 +89,15 @@ async def catch_message(message: Message, bot: Bot) -> None:
             #            if 'not enough rights' in str(e):
             #                    logging.error(f'Not enough rights!')
             #                    await bot.send_message(chat_id=SUPER_GROUP_ID, text='Назначьте меня администратором!')
-                try:
-                    await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, message_thread_id=id_topic_chat, protect_content=None)
-                except Exception as e:
-                        logging.critical(f'Error during copy message STEP 2 ID: {message.from_user.id} Error: {e}')
+                await bot.copy_message(chat_id=SUPER_GROUP_ID, from_chat_id=message.chat.id, message_id=message.message_id, message_thread_id=id_topic_chat, protect_content=None)
+                        
             except TelegramBadRequest as e:
                 '''
                 Если тема была удалена
                 '''
-                if 'message thread not found' in str(e):
+                if 'copied' in str(e):
+                    logging.critical(f'Error during copy message STEP 2 ID: {message.from_user.id} Error: {e}')
+                elif 'message thread not found' in str(e):
                     logging.error(f'Message thread not found re-creating the topic...')
                     try:
                         '''
